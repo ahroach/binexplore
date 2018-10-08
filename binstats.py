@@ -48,7 +48,8 @@ def byte_count_frac(a):
         Fractional occurence of each byte value
     """
 
-    return 1.0*byte_count(a)/a.size
+    bc = byte_count(a)
+    return 1.0*bc/bc.sum(axis=None)
 
 def diff_bit(a, b):
     """ Calculate the number of bit differences between the two arrays
@@ -95,6 +96,46 @@ def diff_byte(a, b):
     b = _cast_uint8_ndarray(b)
 
     return numpy.count_nonzero(numpy.bitwise_xor(a, b))
+
+def digraph_count(a):
+    """ Count the occurrence of each pair of bytes
+
+    Parameters
+    ----------
+    a : array_like or bytestring
+        The array for which to count byte pair occurrences
+
+    Returns
+    -------
+    result : numpy.ndarray with dtype numpy.uint64 and size 256x256
+        Number of byte pair occurrences counted in a
+    """
+
+    a = _cast_uint8_ndarray(a).flatten()
+    result = numpy.zeros((256, 256), dtype=numpy.uint64)
+
+    for i in range(a.size-1):
+        result[a[i], a[i+1]] += 1
+
+    return result
+
+def digraph_count_frac(a):
+    """ Count the fractional occurrence of each pair of bytes
+
+    Parameters
+    ----------
+    a : array_like or bytestring
+        The array for which to count byte pair occurrences
+
+    Returns
+    -------
+    result : numpy.ndarray with floating point type and size 256x256
+        Number of byte pair occurrences counted in a
+    """
+
+    dg = digraph_count(a)
+
+    return 1.0*dg/dg.sum(axis=None)
 
 def entropy(a):
     """ Calculate the Shannon entropy
@@ -158,4 +199,44 @@ def repeating_xor(src, mask):
         result[-remain:] = numpy.bitwise_xor(result[-remain:], mask[:remain])
 
     return result.reshape(src.shape)
+
+def trigraph_count(a):
+    """ Count the occurrence of each triplet of bytes
+
+    Parameters
+    ----------
+    a : array_like or bytestring
+        The array for which to count byte triplet occurrences
+
+    Returns
+    -------
+    result : numpy.ndarray with dtype numpy.uint64 and size 256x256x256
+        Number of byte triplet occurrences counted in a
+    """
+
+    a = _cast_uint8_ndarray(a).flatten()
+    result = numpy.zeros((256, 256, 256), dtype=numpy.uint64)
+
+    for i in range(a.size-2):
+        result[a[i], a[i+1], a[i+2]] += 1
+
+    return result
+
+def trigraph_count_frac(a):
+    """ Count the fractional occurrence of each triplet of bytes
+
+    Parameters
+    ----------
+    a : array_like or bytestring
+        The array for which to count byte triplet occurrences
+
+    Returns
+    -------
+    result : numpy.ndarray with floating point type and size 256x256x256
+        Number of byte triplet occurrences counted in a
+    """
+
+    tg = trigraph_count(a)
+
+    return 1.0*tg/tg.sum(axis=None)
 
