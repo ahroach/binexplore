@@ -2,7 +2,7 @@ import math
 import numpy
 import numpy.fft
 import matplotlib.pyplot as pyplot
-import binstats
+import binexplore.binstats as binstats
 
 def _cast_uint8_ndarray(a):
     """ Attempt to cast everything as a numpy.ndarray of type uint8 """
