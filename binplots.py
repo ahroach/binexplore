@@ -104,7 +104,7 @@ def byte_values(a, **kwargs):
     a = _cast_uint8_ndarray(a)
 
     if 'width' in kwargs:
-        width = kwargs.pop('ax')
+        width = kwargs.pop('width')
     else:
         width = int(math.sqrt(a.size))
 
