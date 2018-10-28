@@ -2,7 +2,19 @@ import numpy
 import math
 
 def _cast_uint8_ndarray(a):
-    """ Attempt to cast everything as a numpy.ndarray of type uint8 """
+    """ Attempt to cast everything as a numpy.ndarray of type uint8
+
+    Parameters
+    ----------
+    a : array_like or bytestring
+        Object containing data
+
+    Returns
+    -------
+    result : numpy.ndarray with dtype numpy.uint8
+        Re-cast result
+    """
+
     if isinstance(a, numpy.ndarray):
         if a.dtype == 'uint8':
             return a

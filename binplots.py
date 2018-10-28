@@ -4,17 +4,6 @@ import numpy.fft
 import matplotlib.pyplot as pyplot
 import binexplore.binstats as binstats
 
-def _cast_uint8_ndarray(a):
-    """ Attempt to cast everything as a numpy.ndarray of type uint8 """
-    if isinstance(a, numpy.ndarray):
-        if a.dtype == 'uint8':
-            return a
-        else:
-            return numpy.array(a, dtype=numpy.uint8)
-    elif isinstance(a, bytes):
-        return numpy.array(bytearray(a), dtype=numpy.uint8)
-    else:
-        return numpy.array(a, dtype=numpy.uint8)
 
 def byte_freq_progression(a, **kwargs):
     """ Plot progression of byte frequencies through the array
@@ -42,7 +31,7 @@ def byte_freq_progression(a, **kwargs):
         Axes on which the results were shown
     """
 
-    a = _cast_uint8_ndarray(a)
+    a = binstats._cast_uint8_ndarray(a)
 
     if 'bs' in kwargs:
         bs = kwargs.pop('bs')
@@ -101,7 +90,7 @@ def byte_values(a, **kwargs):
         Axes on which the results were shown
     """
 
-    a = _cast_uint8_ndarray(a)
+    a = binstats._cast_uint8_ndarray(a)
 
     if 'width' in kwargs:
         width = kwargs.pop('width')
@@ -222,7 +211,7 @@ def entropy(a, **kwargs):
     should be chosen for best results.
     """
 
-    a = _cast_uint8_ndarray(a)
+    a = binstats._cast_uint8_ndarray(a)
 
     if 'bs' in kwargs:
         bs = kwargs.pop('bs')
@@ -280,7 +269,7 @@ def repetition_power(a, **kwargs):
     the other components.
     """
 
-    a = _cast_uint8_ndarray(a)
+    a = binstats._cast_uint8_ndarray(a)
 
     fft = numpy.fft.fft(a.flatten())
     ps = numpy.abs(fft)**2
