@@ -238,14 +238,22 @@ def entropy(a, **kwargs):
 
     return ax
 
-def repetition_power(a, **kwargs):
-    """ Plot power spectrum as a function of repetition period
+def autocorrelation(a, mode='direct', **kwargs):
+    """ Plot autocorrelation-like computation
+
+    Plots a variant of the autocorrelation. It can be calculated directly by
+    xoring with shifted version of signal, and summing to determine number of
+    zero components. Or it can be calculated indirectly by taking an FFT of the
+    signal, multiplying the FFT by its complex conjugate, then applying the
+    inverse FFT operation.
     
     Parameters
     ----------
     a : array_like or bytestring
         Contains data to plot
-    ax : matploitlib.axes._subplots.AxesSubplot instance
+    mode : string (optional)
+        Computation mode. Valid values are 'direct' (default) or 'fft'.
+    ax : matploitlib.axes._subplots.AxesSubplot instance (optional)
         Axes on which to show results
 
     Other Parameters
@@ -263,34 +271,48 @@ def repetition_power(a, **kwargs):
     Results are returned on a log scale for ease of visualization. The user may
     decide that a linear scale is more appropriate.
 
-    The zero-frequency (infinite repetition period) componenet is removed,
-    since it doesn't really fit on the x scale, and the fact that all values
-    are unsigned characters means that the magnitude is very large compared to
-    the other components.
+    The FFT calculation of the autocorrelation is sensitive to window size in a
+    way that the direct calculation is not. In particular, spurious peaks may
+    appear in the FFT-generated autocorrelation if the window size is not an
+    even multiple of the natural data period. These peaks tend to appear as
+    sidebands from the real peaks, at a position dependent on the difference
+    between the the chosen data window size and the nearest even multiple of
+    the natural data period. Some iteration may be useful to help identify real
+    peaks. Varying the window width slightly will cause these spurious peaks to
+    shift location, and disappear altogether if the window width is chosen
+    correctly. This detection process could be automated, but is currently left
+    to the user to perform manually.
+
+    We could operate on the bitstream for better results in noisy channels with
+    the possibility of single-bit errors, but for now we'll stick to byte
+    comparisons. The user could send in their own bitstream with
+    numpy.unpackbits() if they wanted this type of operation.
     """
 
     a = binstats._cast_uint8_ndarray(a)
 
-    fft = numpy.fft.fft(a.flatten())
-    ps = numpy.abs(fft)**2
+    if mode == 'fft':
+        rfft = numpy.fft.rfft(a.flatten())
+        autocorr = numpy.fft.irfft(rfft*rfft.conj())
+    else:
+        # Pre-fill the array with the maximum number of zeros that we could
+        # observe, and then subtract off the number that we *don't* observe.
+        autocorr = numpy.arange(a.size, 0, -1, dtype=numpy.uint64)
+
+        for i in range(1, a.size-1):
+            autocorr[i] -= numpy.count_nonzero(numpy.bitwise_xor(a[:-i],
+                                                                 a[i:]))
  
     if 'ax' in kwargs:
         ax = kwargs.pop('ax')
     else:
         fig = pyplot.figure()
         ax = fig.add_subplot(1,1,1)
-        ax.set_xlabel("Period")
-        ax.set_ylabel("Power")
+        ax.set_xlabel("Shift")
+        ax.set_ylabel("Autocorrelation")
         ax.set_xscale('log')
 
-    # We'll just use the positive frequency space, also excluding the zero
-    # frequency component.
-    # Frequencies are spaced 1/n apart; Periods are the inverse of these
-    # frequencies.
-    mid = a.size//2
-    periods = [a.size/i for i in range(1,mid)]
-
-    ax.plot(periods, ps[1:mid], **kwargs)
+    ax.plot(autocorr, **kwargs)
 
     return ax
 
