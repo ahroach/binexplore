@@ -43,7 +43,7 @@ def byte_freq_progression(a, **kwargs):
     blocks = a.size//bs + (0 if a.size % bs == 0 else 1)
     bf = numpy.zeros((blocks, 256))
     for i in range(blocks):
-        bf[i,:] = binstats.byte_count_frac(a.flatten()[i*bs:(i+1)*bs])
+        bf[i,:] = binstats.byte_count(a.flatten()[i*bs:(i+1)*bs], frac=True)
 
     if 'ax' in kwargs:
         ax = kwargs.pop('ax')
