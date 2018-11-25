@@ -24,6 +24,8 @@ def byte_freq_progression(a, **kwargs):
         blocksize over which to calculate frequencies
     ax : matploitlib.axes._subplots.AxesSubplot instance
         Axes on which to show results
+    log : Boolean, optional
+        Show log of counts (defaults to False)
 
     Other Parameters
     ----------------
@@ -67,7 +69,11 @@ def byte_freq_progression(a, **kwargs):
     if 'interpolation' not in kwargs:
         kwargs['interpolation'] = 'nearest'
 
-    ax.imshow(numpy.log2(bf), **kwargs)
+    log = kwargs.pop('log', False)
+    if log:
+        ax.imshow(numpy.log2(bf), **kwargs)
+    else:
+        ax.imshow(bf, **kwargs)
 
     return ax
 
@@ -102,7 +108,7 @@ def byte_values(a, **kwargs):
     if 'width' in kwargs:
         width = kwargs.pop('width')
     else:
-        width = int(math.sqrt(a.size))
+        width = math.ceil(int(math.sqrt(a.size))/256)*256
 
     remainder = a.size % width
     dim1 = a.size//width + (1 if remainder != 0 else 0)
@@ -146,6 +152,8 @@ def digraphs(a, **kwargs):
         Contains data to plot
     ax : matploitlib.axes._subplots.AxesSubplot instance
         Axes on which to show results
+    log : Boolean, optional
+        Show log of counts (defaults to False)
 
     Other Parameters
     ----------------
@@ -183,7 +191,13 @@ def digraphs(a, **kwargs):
     if 'interpolation' not in kwargs:
         kwargs['interpolation'] = 'nearest'
 
-    ax.imshow(numpy.log2(dg), **kwargs)
+    log = kwargs.pop('log', False)
+    if log:
+        if 'vmin' not in kwargs:
+            kwargs['vmin'] = -1.0
+        ax.imshow(numpy.log2(dg), **kwargs)
+    else:
+        ax.imshow(dg, **kwargs)
 
     return ax
 
