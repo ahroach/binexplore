@@ -2,8 +2,13 @@ import math
 import numpy
 import numpy.fft
 import matplotlib.pyplot as pyplot
+import matplotlib.ticker as ticker
 import binexplore.binstats as binstats
 
+def _hex_tick_str(x, pos):
+    return "%x" % int(x)
+
+_hex_tick_formatter = ticker.FuncFormatter(_hex_tick_str)
 
 def byte_freq_progression(a, **kwargs):
     """ Plot progression of byte frequencies through the array
@@ -52,8 +57,10 @@ def byte_freq_progression(a, **kwargs):
         ax = fig.add_subplot(1,1,1)
         # Black background for any empty cells from log_2 calculation
         ax.set_facecolor('black')
-        ax.set_xlabel("Byte value")
-        ax.set_ylabel("Block (size = %i bytes)" % bs)
+        ax.set_xlabel("Byte value [hex]")
+        ax.set_ylabel("Block [size = %i (0x%x) bytes]" % (bs, bs))
+        ax.xaxis.set_major_locator(ticker.MultipleLocator(0x10))
+        ax.xaxis.set_major_formatter(_hex_tick_formatter)
 
     if 'cmap' not in kwargs:
         kwargs['cmap'] = 'hot'
@@ -110,7 +117,7 @@ def byte_values(a, **kwargs):
     else:
         fig = pyplot.figure()
         ax = fig.add_subplot(1,1,1)
-        ax.set_ylabel("Block (size = %i bytes)" % width)
+        ax.set_ylabel("Block [size = %i bytes]" % width)
         ax.set_xlabel("Index in block")
 
     if 'cmap' not in kwargs:
@@ -164,8 +171,12 @@ def digraphs(a, **kwargs):
         ax = fig.add_subplot(1,1,1)
         # Black background for any empty cells from log_2 calculation
         ax.set_facecolor('black')
-        ax.set_ylabel("Byte 1")
-        ax.set_xlabel("Byte 2")
+        ax.set_ylabel("Byte 1 [hex]")
+        ax.set_xlabel("Byte 2 [hex]")
+        ax.xaxis.set_major_locator(ticker.MultipleLocator(0x10))
+        ax.xaxis.set_major_formatter(_hex_tick_formatter)
+        ax.yaxis.set_major_locator(ticker.MultipleLocator(0x10))
+        ax.yaxis.set_major_formatter(_hex_tick_formatter)
 
     if 'cmap' not in kwargs:
         kwargs['cmap'] = 'hot'
