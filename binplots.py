@@ -263,6 +263,68 @@ def entropy(a, **kwargs):
 
     return ax
 
+def entropy_digraph(a, **kwargs):
+    """ Plot digraph entropy as a function of block number
+
+    Parameters
+    ----------
+    a : array_like or bytestring
+        Contains data to plot
+    bs : int, optional
+        blocksize over which to calculate entropy
+    ax : matploitlib.axes._subplots.AxesSubplot instance
+        Axes on which to show results
+
+    Other Parameters
+    ----------------
+    **kwargs : `matplotlib.pyplot.Line2D` properties, optional
+        Additional kwargs will be passed on to the plot() function
+
+    Returns
+    -------
+    ax : matplotlib.axes._subplots.AxesSubplot instance
+        Axes on which the results were shown
+
+    See also
+    --------
+    binstats.entropy() : Calculate Shannon entropy
+
+    Notes
+    -----
+    Blocksizes that are too small (less than about 0x10000 bytes) will be
+    subject to significant amounts of random noise, possibly leading to false
+    estimates of the variation of the entropy. There are 0x10000 possible
+    symbols in the set, so a blocksize that is at least a hundred kilobytes or
+    so should be chosen for best results.
+    """
+
+    a = binstats._cast_uint8_ndarray(a)
+
+    if 'bs' in kwargs:
+        bs = kwargs.pop('bs')
+    else:
+        bs = a.size//1024
+        if bs < 0x20000:
+            bs = 0x20000
+
+    blocks = a.size//bs + (0 if a.size % bs == 0 else 1)
+    entropy = numpy.zeros(blocks)
+    for i in range(blocks):
+        entropy[i] = binstats.entropy_digraph(a.flatten()[i*bs:(i+1)*bs])
+
+    if 'ax' in kwargs:
+        ax = kwargs.pop('ax')
+    else:
+        fig = pyplot.figure()
+        ax = fig.add_subplot(1,1,1)
+        ax.set_xlabel("Block (size=%i bytes)" % bs)
+        ax.set_ylabel("Shannon entropy over digraphs")
+        ax.set_ylim(bottom=-0.1, top=16.2)
+
+    ax.plot(entropy, **kwargs)
+
+    return ax
+
 def autocorrelation(a, mode='direct', **kwargs):
     """ Plot autocorrelation-like computation
 

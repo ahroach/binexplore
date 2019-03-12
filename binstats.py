@@ -152,6 +152,30 @@ def entropy(a):
 
     return h
 
+def entropy_digraph(a):
+    """ Calculate the Shannon entropy using digraphs (pairs of bytes)
+
+    Parameters
+    ----------
+    a : array_like or bytestring
+        The array over which to calculate entropy
+
+    Returns
+    -------
+    h : float
+        Shannon entropy using digraph symbols
+    """
+
+    a = _cast_uint8_ndarray(a)
+    dg_frac = digraph_count(a, frac=True).flatten()
+
+    h = 0.0
+    for i in range(256*256):
+        if dg_frac[i] != 0:
+            h -= dg_frac[i]*math.log2(dg_frac[i])
+
+    return h
+
 def repeating_xor(src, mask):
     """ Apply repeating xor mask to array
 
